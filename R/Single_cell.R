@@ -8,10 +8,10 @@
 #'
 #'
 #' @examples
-generate_boots <- function(celltype, n) {
-  dt <- data.frame(cluster = celltype, id = 1:length(celltype))
-  index <- do.call(cbind, sapply(1:n, function(x) {
-    splits <- dt %>%
+generate_boots = function(celltype, n) {
+  dt = data.frame(cluster = celltype, id = 1:length(celltype))
+  index = do.call(cbind, sapply(1:n, function(x) {
+    splits = dt %>%
       group_by(cluster) %>%
       sample_n(dplyr::n(), replace = TRUE) %>%
       ungroup() %>%
@@ -36,13 +36,14 @@ generate_boots <- function(celltype, n) {
 #'
 #' @examples
 
-get_ave_exp <- function(i, myseurat, samples,myident) {
-  meta.data=myseurat@meta.data[samples[,i],]
-  sample <-myseurat@assays$RNA@counts[,samples[,i]]
-  SeuratObject<-suppressWarnings(
-    CreateSeuratObject(count=sample,meta.data = meta.data))
-  SeuratObject<-NormalizeData(SeuratObject,verbose = FALSE)
-  ave<-AverageExpression(SeuratObject,group.by = myident,return.seurat = T)[["RNA"]]@data
+get_ave_exp = function(i, myseurat, samples, myident) {
+  #meta.data = myseurat@meta.data[samples[,i],]
+  #sample = myseurat@assays$RNA@counts[,samples[,i]]
+  #SeuratObject = suppressWarnings(
+  #  CreateSeuratObject(count = sample, meta.data = meta.data))
+  SeuratObject = myseurat[,samples[,i]]
+  #SeuratObject = NormalizeData(SeuratObject,verbose = FALSE)
+  ave = as.matrix(AggregateExpression(SeuratObject, group.by = myident, return.seurat = T)[["SCT"]])
   return(ave)
 }
 
@@ -59,11 +60,11 @@ get_ave_exp <- function(i, myseurat, samples,myident) {
 #' @export
 #'
 #' @examples
-calculate_avg_exp <- function(myseurat,myident,n_bootstrap,seed) {
+calculate_avg_exp = function(myseurat,myident,n_bootstrap,seed) {
   set.seed(seed)
   samples=generate_boots(myseurat@meta.data[,myident],n_bootstrap)
-  exp <- lapply(1:n_bootstrap,get_ave_exp,myseurat,samples,myident)
-  exp <- do.call(cbind, exp)
+  exp = lapply(1:n_bootstrap,get_ave_exp,myseurat,samples,myident)
+  exp = do.call(cbind, exp)
   return(exp)
 }
 
