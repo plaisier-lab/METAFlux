@@ -8,12 +8,12 @@
 #'
 #'
 #' @examples
-generate_boots = function(celltype, n, fraction1 = 0.7) {
+generate_boots = function(celltype, n) {
   dt = data.frame(cluster = celltype, id = 1:length(celltype))
   index = do.call(cbind, sapply(1:n, function(x) {
     splits = dt %>%
       group_by(cluster) %>%
-      sample_frac(fraction1, replace = TRUE) %>%
+      sample_frac(1, replace = TRUE) %>%
       ungroup() %>%
       dplyr::select("id")
   }))
